@@ -1,43 +1,50 @@
-let radius = 0;
-let minRadius = 0;
-let maxRadius = 75;
-let isPlayingForwards = true;
-let drawingColor = 'white';
-
 function startAnimation() {
-  window.requestAnimationFrame(update);
+  const radiusGenerator = getRadiusGenerator();
+  window.requestAnimationFrame(() => update(radiusGenerator));
 }
 
-function getRadius() {
-  if (radius === maxRadius) {
-    isPlayingForwards = false;
-    radius = radius - 1;
-  } else if (radius === minRadius) {
-    isPlayingForwards = true;
-    radius = radius + 1;
-  } else if (radius < maxRadius && isPlayingForwards) {
-    radius = radius + 1;
-  } else {
-    radius = radius - 1;
+function* getRadiusGenerator() {
+  // Initial state
+  let radius = 0;
+  let isPlayingForwards = true;
+  const minRadius = 0;
+  const maxRadius = 75;
+
+  // Loop forever
+  while (true) {
+    if (radius === maxRadius) {
+      isPlayingForwards = false;
+      radius = radius - 1;
+    } else if (radius === minRadius) {
+      isPlayingForwards = true;
+      radius = radius + 1;
+    } else if (radius < maxRadius && isPlayingForwards) {
+      radius = radius + 1;
+    } else {
+      radius = radius - 1;
+    }
+    // But each yield blocks the loop so we're good
+    yield radius;
   }
-  return radius;
 }
 
-function draw() {
+function drawCircle(radius) {
   const domNode = document.querySelector('#canvas');
   const ctx = domNode.getContext('2d');
-  ctx.clearRect(0, 0, 500, 500);
-  ctx.beginPath();
+  const drawingColor = 'white';
   ctx.fillStyle = drawingColor;
   ctx.strokeStyle = drawingColor;
-  ctx.arc(250, 250, getRadius(), 0, 2 * Math.PI);
+  ctx.clearRect(0, 0, 500, 500);
+  ctx.beginPath();
+  ctx.arc(250, 250, radius, 0, 2 * Math.PI);
   ctx.fill();
   ctx.stroke();
 }
 
-function update() {
-  draw();
-  window.requestAnimationFrame(update);
+function update(generator) {
+  const nextRadius = generator.next().value;
+  drawCircle(nextRadius);
+  window.requestAnimationFrame(() => update(generator));
 }
 
 function init() {
