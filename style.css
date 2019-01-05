@@ -1,0 +1,14 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: firebrick;
+  display: flex;
+  margin: 0;
+}
+
+#canvas {
+  margin: auto;
+}
